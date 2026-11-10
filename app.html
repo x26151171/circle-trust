@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CircleTrust Alpha Prototype</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --text-main: #111827;
+      --text-sub: #4b5563;
+      --green-bg: #dcfce7;
+      --green-text: #14532d;
+      --yellow-bg: #fef3c7;
+      --yellow-text: #78350f;
+      --accent-blue: #2563eb;
+      --border-color: #d1d5db;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      font-size: 20px;
+      line-height: 1.5;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 16px;
+    }
+
+    .app-container {
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .prototype-banner {
+      background-color: #ffedd5;
+      border: 2px solid #f97316;
+      color: #9a3412;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .header-card {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+    }
+
+    h1 { font-size: 28px; margin: 0 0 4px 0; }
+    .circle-location { color: var(--text-sub); font-size: 18px; margin: 0 0 16px 0; }
+
+    .turn-box {
+      background-color: #eff6ff;
+      border: 2px solid var(--accent-blue);
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+
+    .turn-title {
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .turn-name {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--accent-blue);
+      margin: 0;
+    }
+
+    .pot-info {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 8px;
+      color: var(--text-main);
+    }
+
+    .section-title { font-size: 22px; margin: 24px 0 12px 0; }
+
+    .member-card {
+      background-color: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .member-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .member-name { font-size: 22px; font-weight: bold; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .status-paid { background-color: var(--green-bg); color: var(--green-text); }
+    .status-unpaid { background-color: var(--yellow-bg); color: var(--yellow-text); }
+
+    .toggle-btn {
+      background-color: var(--text-main);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="prototype-banner">
+      ⚠️ PROTOTYPE DEMO: Invented data only. No real money processed.
+    </div>
+
+    <header class="header-card">
+      <h1>CircleTrust</h1>
+      <p class="circle-location">Blanchardstown Savings Circle</p>
+
+      <div class="turn-box">
+        <div class="turn-title">Next to take the pot</div>
+        <p class="turn-name">Mary Walsh</p>
+        <div class="pot-info" id="pot-summary">Total Pot: €1,000 (€0 collected)</div>
+      </div>
+    </header>
+
+    <h2 class="section-title">This Month's Payments (€100 each)</h2>
+    <div id="member-list"></div>
+  </div>
+
+  <script>
+    const members = [
+      { id: 1, name: "Mary Walsh", paid: true, isReceiver: true },
+      { id: 2, name: "Sean O'Connor", paid: true, isReceiver: false },
+      { id: 3, name: "Aoife Byrne", paid: true, isReceiver: false },
+      { id: 4, name: "Liam Murphy", paid: false, isReceiver: false },
+      { id: 5, name: "Ciara Doyle", paid: false, isReceiver: false },
+      { id: 6, name: "Patrick Kelly", paid: false, isReceiver: false },
+      { id: 7, name: "Niamh Brennan", paid: false, isReceiver: false },
+      { id: 8, name: "David Ryan", paid: false, isReceiver: false },
+      { id: 9, name: "Emma Walsh", paid: false, isReceiver: false },
+      { id: 10, name: "James McCarthy", paid: false, isReceiver: false }
+    ];
+
+    function renderApp() {
+      const listEl = document.getElementById('member-list');
+      const potSummaryEl = document.getElementById('pot-summary');
+      listEl.innerHTML = '';
+      
+      let paidCount = 0;
+
+      members.forEach((member, index) => {
+        if (member.paid) paidCount++;
+
+        const card = document.createElement('div');
+        card.className = 'member-card';
+
+        card.innerHTML = `
+          <div class="member-info">
+            <div>
+              <div class="member-name">${member.name} ${member.isReceiver ? '⭐' : ''}</div>
+              ${member.isReceiver ? '<small style="font-size:15px; color:#2563eb; font-weight:bold;">Takes pot this month</small>' : ''}
+            </div>
+            <span class="status-badge ${member.paid ? 'status-paid' : 'status-unpaid'}">
+              ${member.paid ? 'PAID' : 'NOT PAID'}
+            </span>
+          </div>
+          <button class="toggle-btn" onclick="togglePayment(${index})">
+            ${member.paid ? 'Mark as Not Paid' : 'Mark as Paid (€100)'}
+          </button>
+        `;
+        listEl.appendChild(card);
+      });
+
+      const totalCollected = paidCount * 100;
+      potSummaryEl.innerText = `Total Pot: €1,000 (€${totalCollected} collected from ${paidCount}/10 members)`;
+    }
+
+    function togglePayment(index) {
+      members[index].paid = !members[index].paid;
+      renderApp();
+    }
+
+    renderApp();
+  </script>
+</body>
+</html>
